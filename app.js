@@ -36,7 +36,7 @@ class Server {
 
         this.#app.use(function (err, req, res, next) {
             const { message, code } = errorHandler.getErrorCode(err)
-
+            console.log(err)
             responseSender({
                 err,
                 data: null,

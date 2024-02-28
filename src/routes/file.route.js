@@ -1,5 +1,6 @@
 import { Router } from "express"
 
+import fileUpload from "../packages/middlewares/file.uploader.js"
 import fileController from "../controllers/file.controller.js"
 
 class FileMgmtRouter {
@@ -10,7 +11,7 @@ class FileMgmtRouter {
     }
 
     mountRoutes() {
-        this.router.post("/upload", fileController.uploadFile)
+        this.router.post("/upload", fileUpload.uploader(), fileController.uploadFile)
     }
 }
 
