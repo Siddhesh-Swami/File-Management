@@ -2,14 +2,7 @@ import multer from "multer";
 import path from "path"
 
 import { BadRequestError } from "../utils/customErrors.js";
-import fsPromises from "node:fs/promises"
 import fs from "node:fs"
-
-
-const allowedExtensions = [".xlsx", ".xls", ".jpg", ".jpeg", ".gif", ".png", ".doc", ".docx", ".ppt", ".pptx", ".txt", ".pdf", ".csv", ".zip"]
-// const multerMiddleware = fileUpload.single("file")
-
-
 
 
 class FileUploader {
@@ -26,7 +19,7 @@ class FileUploader {
 
         const storage = multer.diskStorage({
             destination: function (req, file, cb) {
-                cb(null, destinationDir)
+                cb(null, req.headers.uploadConfigs[file.fieldname].destinationDir)
             },
             filename: function (req, file, cb) {
                 // const extension = path.extname(file.originalname)
@@ -46,11 +39,9 @@ class FileUploader {
                 return cb(new BadRequestError('file name is too long'), false);
             }
 
-            if (!allowedExtensions.includes(path.extname(file.originalname))) {
+            if (!req.headers.uploadConfigs[file.fieldname].allowedExtensions.includes(path.extname(file.originalname).toLowerCase())) {
                 return cb(new BadRequestError('following file type is not allowed'), false);
             }
-
-            console.log(file)
 
             cb(null, true)
 
@@ -62,35 +53,25 @@ class FileUploader {
         })
     }
 
-    // async uploader(req, res, next) {
-    //     try {
-
-    //         return multerMiddleware(req, res, function (err) {
-
-    //             try {
-    //                 if (err instanceof multer.MulterError) {
-    //                     throw new BadRequestError("Error while uploading file")
-    //                 }
-
-    //                 next()
-    //             } catch (error) {
-    //                 return next(error)
-    //             }
-    //         })
-    //     } catch (error) {
-    //         return next(error)
-    //     }
-    // }
-
     // pass a function that returns the middleware
-    uploader() {
+    uploader(uploadConfigs) {
         return async (req, res, next) => {
             try {
 
-                const multerMiddleware = this.fileUploader.single('file')
+                req.headers.uploadConfigs = {}
+                for (const config of uploadConfigs) {
+
+                    req.headers.uploadConfigs[config.name] = {
+                        maxCount: config.maxCount,
+                        destinationDir: config.targetDir,
+                        name: config.name,
+                        allowedExtensions: config.allowedExtensions
+                    }
+                }
+
+                const multerMiddleware = this.fileUploader.fields(uploadConfigs)
 
                 multerMiddleware(req, res, function (err) {
-
                     try {
                         if (err) {
                             console.log(err)
@@ -99,15 +80,10 @@ class FileUploader {
                             }
                             throw err;
                         }
-
-
-
                         return next()
                     } catch (error) {
                         return next(error)
                     }
-
-
                 })
 
             } catch (error) {
