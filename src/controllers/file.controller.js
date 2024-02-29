@@ -2,6 +2,7 @@ import { StatusCodes } from 'http-status-codes'
 
 import { BadRequestError } from "../packages/utils/customErrors.js"
 import responseSender from "../packages/utils/responder.js"
+import fileService from '../services/file.service.js'
 
 class FileMgmtContrller {
 
@@ -11,17 +12,50 @@ class FileMgmtContrller {
     async uploadFile(req, res, next) {
         try {
 
-            // throw new BadRequestError("File upload failed")
-
             responseSender({
                 statusCode: StatusCodes.OK,
-                message: "File uploaded successfully",
+                message: "Files uploaded successfully",
                 res
             })
         } catch (error) {
             next(error)
         }
 
+    }
+
+    async fetchFiles(req, res, next) {
+        try {
+
+            const files = await fileService.fetchFiles({})
+
+            responseSender({
+                statusCode: StatusCodes.OK,
+                data: files,
+                res
+            })
+        } catch (error) {
+            next(error)
+        }
+
+    }
+
+    async deleteFiles(req, res, next) {
+        try {
+            const files = req.body.files
+
+            if (!files || !files.length) {
+                throw new BadRequestError("filenames not provided")
+            }
+            await fileService.deleteFiles({ files })
+
+            responseSender({
+                statusCode: StatusCodes.OK,
+                message: "files deleted successfully",
+                res
+            })
+        } catch (error) {
+            next(error)
+        }
     }
 
 

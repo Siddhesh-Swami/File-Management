@@ -11,7 +11,7 @@ class MainRouter {
     }
 
     mountRoutes() {
-        this.router.use("/file", fileMgmtRouter)
+        this.router.use("/files", fileMgmtRouter)
     }
 }
 
