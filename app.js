@@ -11,6 +11,8 @@ const errorHandler = new ErrorHandler()
 const router = express.Router()
 const port = 3000
 
+app.use(express.json());
+
 class Server {
     #app
 

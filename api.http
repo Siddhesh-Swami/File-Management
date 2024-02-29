@@ -1,2 +1,17 @@
+@host = localhost:3000
 
-POST http://localhost:3000/file/upload
+###
+GET /files
+Host: {{host}}
+Content-Type: application/json
+
+###
+POST /files/delete
+Host: {{host}}
+Content-Type: application/json
+
+{
+    "files":[
+        "/home/location/to/directory/fileMgmt/uploads/biometric/fingerprint/banner2_1709229138762.jpg"]
+}
+
